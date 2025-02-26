@@ -8,6 +8,7 @@ Run
 
 ```
 $ ./dispRel
+Twisted mass regularization [0-1]?
 mMes? 
 mLep? 
 L? 
@@ -17,13 +18,7 @@ NDim [1-3]?
 Example
 
 ```
-$ ./dispRel <<INPUT
-0.494
-0.100
-31
-1
-INPUT
-
+$ ./dispRel < input.txt
 Theta: {2.38636,0,0}
 Enu: 0.237255
 Elep: 0.256745

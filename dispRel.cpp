@@ -207,7 +207,7 @@ double mOutOfInverseDispRel(const double& M)
 
 int main()
 {
-  cout<<"Twisted mass regularization? ";
+  cout<<"Twisted mass regularization [0-1]? ";
   cin>>twistedMass;
   
   double mMes;
