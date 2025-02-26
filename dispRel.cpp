@@ -8,6 +8,10 @@
 constexpr double epsilon=
   2*std::numeric_limits<double>::epsilon();
 
+constexpr double kappaFree=0.125;
+
+bool twistedMass;
+
 #define CRASH(...)							\
   internalCrash(__LINE__,__FILE__,__PRETTY_FUNCTION__,__VA_ARGS__)
 
@@ -177,17 +181,35 @@ double naiveMasslessFermionEnergy(const array<double,3>& bc,
   return asinh(sqrt(sinh2E));
 }
 
+/// Returns the kappa corresponding to a given mass
+double kappaOfM0(const double& m0)
+{
+  return 0.5/(m0+4);
+}
+
+/// Finds the mass corresponding to the external one, taking into account lattice artifacts
 double mOutOfInverseDispRel(const double& M)
 {
-  return BrentSolve([M](const double& mu)
+  return BrentSolve([M](const double& m)
   {
-    return tmFermionEnergy(0.125,mu,{0,0,0},1)-M;
+    const double kappa=
+      twistedMass?
+      kappaFree:
+      kappaOfM0(m);
+    
+    const double mu=
+      twistedMass?m:0.0;
+    
+    return tmFermionEnergy(kappa,mu,{0,0,0},1)-M;
   },
     M/2,M*2);
 }
 
 int main()
 {
+  cout<<"Twisted mass regularization? ";
+  cin>>twistedMass;
+  
   double mMes;
   cout<<"mMes? ";
   cin>>mMes;
@@ -207,8 +229,6 @@ int main()
   if(nDim>3 or nDim<1)
     CRASH("asked to spread momentum over %d directions, please choose in the range [1-3])",nDim);
   
-  constexpr double kappaFree=0.125;
-  
   const double m=mOutOfInverseDispRel(mLep);
   
   const auto lepsEn=
@@ -221,8 +241,16 @@ int main()
       const double Enu=
 	naiveMasslessFermionEnergy(bc,L);
       
+      const double kappa=
+	twistedMass?
+	kappaFree:
+	kappaOfM0(m);
+      
+      const double mu=
+	twistedMass?m:0.0;
+      
       const double Elep=
-	tmFermionEnergy(kappaFree,m,bc,L);
+	tmFermionEnergy(kappa,mu,bc,L);
       
       return std::make_pair(Enu,Elep);
     };
